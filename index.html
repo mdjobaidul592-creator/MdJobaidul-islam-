@@ -1,0 +1,961 @@
+```html
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>পোল্ট্রি হাট | সরাসরি খামার থেকে তাজা মুরগি, হাঁস ও ডিম</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Hind Siliguri & Noto Sans Bengali -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Hind Siliguri"', '"Noto Sans Bengali"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            },
+            amberfarm: {
+              50: '#fffbeb',
+              100: '#fef3c7',
+              500: '#f59e0b',
+              600: '#d97706',
+              700: '#b45309',
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-stone-50 text-slate-800 font-sans antialiased selection:bg-brand-100 selection:text-brand-900 pb-24">
+
+  <!-- Toast Notification Container (Replaces alert) -->
+  <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md pointer-events-none flex flex-col gap-2"></div>
+
+  <!-- Top Sticky Header -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200 shadow-xs">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 text-white flex items-center justify-center shadow-sm text-xl shrink-0">
+          <i class="fa-solid fa-feather-pointed"></i>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold text-slate-900 leading-tight">পোল্ট্রি হাট</h1>
+          <p class="text-xs text-slate-500 font-medium">সরাসরি খামার থেকে তাজা মুরগি, হাঁস ও ডিম</p>
+        </div>
+      </div>
+
+      <!-- District Selector & Quick Share -->
+      <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+        <div class="relative flex-1 sm:flex-initial">
+          <label for="district-select" class="sr-only">জেলা নির্বাচন করুন</label>
+          <div class="flex items-center bg-brand-50 border border-brand-200 rounded-xl px-3 py-2 text-sm font-semibold text-brand-900 shadow-2xs">
+            <i class="fa-solid fa-location-dot text-brand-600 mr-2"></i>
+            <select id="district-select" class="bg-transparent focus:outline-none w-full sm:w-36 font-bold cursor-pointer">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <button onclick="openShareModal()" class="p-2.5 rounded-xl bg-amberfarm-50 hover:bg-amberfarm-100 border border-amberfarm-200 text-amberfarm-700 transition active:scale-95 flex items-center gap-1.5 text-sm font-bold shrink-0" title="লিংক শেয়ার করুন">
+          <i class="fa-solid fa-share-nodes"></i>
+          <span>লিংক শেয়ার</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="max-w-5xl mx-auto px-4 pt-4">
+    <div class="bg-gradient-to-r from-brand-800 via-brand-700 to-brand-600 rounded-2xl p-4 sm:p-6 text-white shadow-md relative overflow-hidden">
+      <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 bg-amberfarm-500/20 border border-amberfarm-300/30 text-amberfarm-100 text-xs font-bold px-3 py-1 rounded-full mb-2">
+            <i class="fa-solid fa-circle-check text-amberfarm-300"></i>
+            <span>আজকের আপডেট বাজারদর ও স্টক তালিকা</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold leading-snug">
+            <span id="hero-district-name" class="underline decoration-amberfarm-400 decoration-2 underline-offset-4">ঢাকা</span> জেলার বর্তমান দাম ও স্টক
+          </h2>
+          <p class="text-brand-100 text-xs sm:text-sm mt-1">
+            এলাকা পরিবর্তন করলে দাম অটোমেটিক ঠিক হয়ে যাবে। অর্ডার করতে সরাসরি WhatsApp-এ কথা বলুন।
+          </p>
+        </div>
+
+        <a id="hero-direct-wa" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 bg-white text-brand-800 hover:bg-brand-50 font-bold px-4 py-3 rounded-xl shadow-sm transition active:scale-95 text-sm shrink-0">
+          <i class="fa-brands fa-whatsapp text-xl text-green-600"></i>
+          <span>সরাসরি কথা বলুন</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Filter Tabs -->
+  <nav class="max-w-5xl mx-auto px-4 pt-5 pb-2 sticky top-[69px] sm:top-[73px] z-20 bg-stone-50/95 backdrop-blur-xs">
+    <div id="category-tabs" class="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+      <button data-cat="all" class="cat-btn active px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap bg-brand-700 text-white shadow-xs transition">
+        সব পণ্য
+      </button>
+      <button data-cat="chicken" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap bg-white text-slate-700 border border-stone-200 hover:bg-stone-100 transition">
+        🐓 মুরগি (দেশি ও ফাউমি)
+      </button>
+      <button data-cat="table_egg" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap bg-white text-slate-700 border border-stone-200 hover:bg-stone-100 transition">
+        🥚 খাওয়ার ডিম
+      </button>
+      <button data-cat="hatching_egg" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap bg-white text-slate-700 border border-stone-200 hover:bg-stone-100 transition">
+        🐣 বীজ ডিম
+      </button>
+      <button data-cat="duck" class="cat-btn px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap bg-white text-slate-700 border border-stone-200 hover:bg-stone-100 transition">
+        🦆 হাঁস
+      </button>
+    </div>
+  </nav>
+
+  <!-- Product Catalog Grid -->
+  <main class="max-w-5xl mx-auto px-4 pt-3">
+    <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Cards rendered dynamically via JS -->
+    </div>
+  </main>
+
+  <!-- Floating Direct WhatsApp Button -->
+  <a id="floating-wa-btn" href="https://wa.me/966537077686" target="_blank" rel="noopener noreferrer" class="fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-3.5 rounded-full shadow-xl transition active:scale-95 text-sm">
+    <i class="fa-brands fa-whatsapp text-xl"></i>
+    <span>WhatsApp-এ কথা বলুন</span>
+  </a>
+
+  <!-- Footer with Discreet Owner Lock Trigger -->
+  <footer class="max-w-5xl mx-auto px-4 mt-14 pt-6 border-t border-stone-200 text-center text-xs text-slate-500">
+    <p class="font-semibold text-slate-600">© ২০২৬ পোল্ট্রি হাট • সরাসরি খামার থেকে সরবরাহ</p>
+    <p class="mt-1">পছন্দের পণ্যের নিচে থাকা বাটনে চাপ দিয়ে সরাসরি WhatsApp-এ কথা বলে অর্ডার করুন।</p>
+    <div class="mt-5 flex justify-center">
+      <!-- Discreet lock icon invisible to regular buyers' focus -->
+      <button onclick="openOwnerAuthModal()" aria-label="Owner Settings" class="p-2 text-stone-300 hover:text-stone-400 transition rounded-lg">
+        <i class="fa-solid fa-lock text-xs"></i>
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 1: SHARE LINK MODAL                                 -->
+  <!-- ========================================================= -->
+  <div id="share-modal" class="fixed inset-0 z-50 hidden bg-slate-900/65 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 bg-brand-800 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-share-nodes text-amberfarm-300"></i>
+          <h3 class="font-bold text-base">ক্রেতাদের জন্য শেয়ার লিংক</h3>
+        </div>
+        <button onclick="closeModal('share-modal')" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="p-5 space-y-4">
+        <p class="text-xs text-slate-600 leading-relaxed">
+          এই লিংকের ভেতরে আপনার নির্ধারিত সর্বশেষ দাম ও বিক্রির জন্য থাকা পিসের সংখ্যা সংরক্ষিত আছে। Facebook বা WhatsApp-এ এই লিংক দিলে ক্রেতারা Chrome-এ ঢুকে আপনার আপডেট করা দাম ও পিসের সংখ্যাই দেখতে পারবে।
+        </p>
+        <div class="flex items-center gap-2">
+          <input type="text" id="share-url-input" readonly class="w-full px-3 py-2.5 rounded-xl bg-stone-100 border border-stone-200 text-xs font-mono text-slate-700 outline-none" />
+          <button onclick="copyCurrentShareUrl()" class="px-4 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs font-bold shrink-0 transition active:scale-95">
+            কপি
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <button onclick="shareToWhatsApp()" class="py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95">
+            <i class="fa-brands fa-whatsapp text-base"></i> WhatsApp-এ শেয়ার
+          </button>
+          <button onclick="shareToFacebook()" class="py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 transition active:scale-95">
+            <i class="fa-brands fa-facebook text-base"></i> Facebook-এ শেয়ার
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 2: OWNER PIN AUTHENTICATION                         -->
+  <!-- ========================================================= -->
+  <div id="owner-auth-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden">
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-amberfarm-400"></i>
+          <h3 class="font-bold text-base">মালিক পক্ষের সেটিংস</h3>
+        </div>
+        <button onclick="closeModal('owner-auth-modal')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="verifyOwnerPin(event)" class="p-5 space-y-4">
+        <p class="text-xs text-slate-500">
+          দাম ও কত পিস বিক্রির জন্য আছে তা নির্ধারণ করতে গোপন পিন দিন।
+        </p>
+        <div>
+          <label for="owner-pin-input" class="block text-xs font-bold text-slate-700 mb-1">পিন নম্বর</label>
+          <input type="password" inputmode="numeric" id="owner-pin-input" placeholder="••••" required class="w-full px-4 py-2.5 rounded-xl border border-stone-300 focus:border-slate-900 outline-none text-center text-lg tracking-widest font-bold" />
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm transition">
+          ভেতরে প্রবেশ করুন
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL 3: OWNER ADMIN PANEL                                -->
+  <!-- ========================================================= -->
+  <div id="owner-admin-modal" class="fixed inset-0 z-50 hidden bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4">
+    <div class="bg-white w-full max-w-3xl max-h-[92vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      <!-- Header -->
+      <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div>
+          <h3 class="text-lg font-bold flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-amberfarm-400"></i> মালিক সেটিংস (দাম ও পিস নির্ধারণ)
+          </h3>
+          <p class="text-xs text-slate-300">এখানে দাম ও পিসের সংখ্যা সেট করে সেভ ও লিংক কপি করুন</p>
+        </div>
+        <button onclick="closeModal('owner-admin-modal')" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Content -->
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1">
+        
+        <!-- 1. WhatsApp & PIN Settings -->
+        <div class="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-3">
+          <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+            <i class="fa-brands fa-whatsapp text-green-600 text-base"></i> WhatsApp নম্বর ও গোপন পিন
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">আপনার WhatsApp নম্বর (কান্ট্রি কোডসহ)</label>
+              <input type="text" id="admin-wa-number" placeholder="966537077686" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm font-mono font-bold focus:border-brand-600 outline-none bg-white" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-600 mb-1">মালিক সেটিংসের পিন</label>
+              <input type="text" id="admin-new-pin" placeholder="4973" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 text-sm font-mono font-bold focus:border-brand-600 outline-none bg-white" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. District Price Adjustments -->
+        <div class="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-map-location-dot text-brand-700"></i> জেলা অনুযায়ী দামের পার্থক্য (৳)
+            </h4>
+            <span class="text-xs text-slate-500">মূল দামের সাথে + বা - টাকা অটোমেটিক হিসাব হবে</span>
+          </div>
+          <div id="admin-district-list" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- 3. Product Base Price & Available Pieces -->
+        <div class="bg-stone-50 border border-stone-200 rounded-2xl p-4 space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i class="fa-solid fa-boxes-stacked text-amberfarm-600"></i> পণ্যের মূল দাম ও বিক্রির জন্য থাকা পিসের সংখ্যা
+            </h4>
+            <span class="text-xs text-slate-500">০ পিস দিলে ক্রেতাদের কাছে 'স্টক শেষ' দেখাবে</span>
+          </div>
+          <div id="admin-product-list" class="space-y-3">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-4 sm:px-5 py-3.5 bg-stone-100 border-t border-stone-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
+        <button onclick="resetToDefaults()" class="text-xs text-rose-600 hover:text-rose-700 font-bold px-3 py-2 rounded-lg hover:bg-rose-50 transition">
+          ডিফল্ট রিসেট
+        </button>
+        <div class="flex items-center gap-2 ml-auto">
+          <button onclick="closeModal('owner-admin-modal')" class="px-4 py-2.5 rounded-xl bg-white border border-stone-300 text-slate-700 text-xs sm:text-sm font-bold hover:bg-stone-50">
+            বাতিল
+          </button>
+          <button onclick="saveAndCopyShareLink()" class="px-4 sm:px-5 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-xs sm:text-sm font-bold shadow-sm transition active:scale-95 flex items-center gap-1.5">
+            <i class="fa-solid fa-check-double"></i>
+            <span>সেভ করুন ও শেয়ার লিংক কপি করুন</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * POULTRY HAT (পোল্ট্রি হাট) - STATIC URL-HASH SYNCED CATALOG
+     * ============================================================================
+     */
+
+    const STORAGE_KEY = 'poultry_hat_catalog_v2';
+
+    const DEFAULT_STORE_DATA = {
+      ownerWhatsApp: '966537077686',
+      ownerPin: '4973',
+      districts: [
+        { id: 'dhaka', name: 'ঢাকা', offset: 0 },
+        { id: 'chattogram', name: 'চট্টগ্রাম', offset: 10 },
+        { id: 'sylhet', name: 'সিলেট', offset: 15 },
+        { id: 'rajshahi', name: 'রাজশাহী', offset: -15 },
+        { id: 'khulna', name: 'খুলনা', offset: -10 },
+        { id: 'barishal', name: 'বরিশাল', offset: 5 },
+        { id: 'rangpur', name: 'রংপুর', offset: -20 },
+        { id: 'mymensingh', name: 'ময়মনসিংহ', offset: -10 }
+      ],
+      products: [
+        {
+          id: 'p1',
+          category: 'chicken',
+          categoryLabel: 'মুরগি (দেশি ও ফাউমি)',
+          name: 'খাঁটি দেশি মুরগি (১.২ - ১.৫ কেজি)',
+          description: 'প্রাকৃতিক খাবারে পালিত সুস্থ ও সবল দেশি মুরগি।',
+          unit: 'প্রতি কেজি',
+          basePrice: 560,
+          availablePieces: 45,
+          badge: 'জনপ্রিয়'
+        },
+        {
+          id: 'p2',
+          category: 'chicken',
+          categoryLabel: 'মুরগি (দেশি ও ফাউমি)',
+          name: 'মিশরীয় ফাউমি মুরগি (৩-৪ মাস বয়সী)',
+          description: 'ডিম ও মাংস উভয়ের জন্য উপযোগী সুস্থ ফাউমি মুরগি।',
+          unit: 'প্রতি পিস',
+          basePrice: 420,
+          availablePieces: 120,
+          badge: 'খামারের সেরা'
+        },
+        {
+          id: 'p3',
+          category: 'chicken',
+          categoryLabel: 'মুরগি (দেশি ও ফাউমি)',
+          name: 'সোনালী মুরগি (১.০ - ১.২ কেজি)',
+          description: 'নরম ও সুস্বাদু মাংসের জন্য তাজা সোনালী মুরগি।',
+          unit: 'প্রতি কেজি',
+          basePrice: 320,
+          availablePieces: 80,
+          badge: ''
+        },
+        {
+          id: 'p4',
+          category: 'table_egg',
+          categoryLabel: 'খাওয়ার ডিম',
+          name: 'দেশি মুরগির খাওয়ার ডিম',
+          description: 'প্রতিদিন সংগ্রহ করা সম্পূর্ণ তাজা দেশি মুরগির ডিম।',
+          unit: 'প্রতি হালি (৪ পিস)',
+          basePrice: 72,
+          availablePieces: 300,
+          badge: 'তাজা সংগ্রহ'
+        },
+        {
+          id: 'p5',
+          category: 'table_egg',
+          categoryLabel: 'খাওয়ার ডিম',
+          name: 'ফাউমি / সোনালী খাওয়ার ডিম (ট্রে)',
+          description: 'পরিবার বা দোকানের জন্য ৩০ পিসের সম্পূর্ণ ডিমের ট্রে।',
+          unit: 'প্রতি ট্রে (৩০ পিস)',
+          basePrice: 390,
+          availablePieces: 600,
+          badge: ''
+        },
+        {
+          id: 'p6',
+          category: 'hatching_egg',
+          categoryLabel: 'বীজ ডিম',
+          name: 'খাঁটি দেশি মুরগির বীজ ডিম',
+          description: 'উচ্চ হ্যাচিং রেট সম্পন্ন বাছাইকৃত উর্বর বীজ ডিম।',
+          unit: 'প্রতি পিস',
+          basePrice: 28,
+          availablePieces: 150,
+          badge: 'উচ্চ হ্যাচিং'
+        },
+        {
+          id: 'p7',
+          category: 'hatching_egg',
+          categoryLabel: 'বীজ ডিম',
+          name: 'মিশরীয় ফাউমি বীজ ডিম',
+          description: 'ইনকিউবেটর বা কুচে মুরগিতে তা দেওয়ার উপযোগী ফাউমি বীজ ডিম।',
+          unit: 'প্রতি পিস',
+          basePrice: 25,
+          availablePieces: 250,
+          badge: ''
+        },
+        {
+          id: 'p8',
+          category: 'duck',
+          categoryLabel: 'হাঁস',
+          name: 'দেশি পাতিহাঁস (১.৫ - ১.৮ কেজি)',
+          description: 'খাল-বিল ও প্রাকৃতিক পরিবেশে পালিত বড় দেশি হাঁস।',
+          unit: 'প্রতি পিস',
+          basePrice: 650,
+          availablePieces: 35,
+          badge: 'সীমিত স্টক'
+        },
+        {
+          id: 'p9',
+          category: 'duck',
+          categoryLabel: 'হাঁস',
+          name: 'চিনা হাঁস (২.২ - ২.৮ কেজি)',
+          description: 'বেশি মাংসযুক্ত সুস্থ ও পুষ্ট চিনা হাঁস।',
+          unit: 'প্রতি কেজি',
+          basePrice: 480,
+          availablePieces: 22,
+          badge: ''
+        }
+      ]
+    };
+
+    let storeData = JSON.parse(JSON.stringify(DEFAULT_STORE_DATA));
+    let selectedDistrictId = 'dhaka';
+    let selectedCategory = 'all';
+
+    /**
+     * UTF-8 Safe Base64 Encode/Decode for URL Hash (#data=...)
+     */
+    function encodeStateToHash(dataObj) {
+      const compactPayload = {
+        w: dataObj.ownerWhatsApp,
+        d: dataObj.districts.map(d => [d.id, d.offset]),
+        p: dataObj.products.map(p => [p.id, p.basePrice, p.availablePieces])
+      };
+      const jsonStr = JSON.stringify(compactPayload);
+      const bytes = new TextEncoder().encode(jsonStr);
+      let binary = '';
+      bytes.forEach(b => (binary += String.fromCharCode(b)));
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function decodeStateFromHash(hashStr) {
+      try {
+        let base64 = hashStr.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4) base64 += '=';
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        const jsonStr = new TextDecoder().decode(bytes);
+        return JSON.parse(jsonStr);
+      } catch (e) {
+        console.warn('Invalid hash state:', e);
+        return null;
+      }
+    }
+
+    /**
+     * Load state: URL #data=... takes highest priority so shared links show owner's exact prices & pieces on any phone
+     */
+    function initializeStoreState() {
+      // 1. Load localStorage first
+      try {
+        const savedLocal = localStorage.getItem(STORAGE_KEY);
+        if (savedLocal) {
+          const parsed = JSON.parse(savedLocal);
+          if (parsed && Array.isArray(parsed.products)) {
+            storeData = { ...storeData, ...parsed };
+          }
+        }
+      } catch (e) {}
+
+      // 2. Check URL hash (#data=...)
+      const rawHash = window.location.hash || '';
+      const match = rawHash.match(/data=([A-Za-z0-9\-_]+)/);
+      if (match && match[1]) {
+        const decoded = decodeStateFromHash(match[1]);
+        if (decoded) {
+          if (decoded.w && /^[0-9]{8,16}$/.test(String(decoded.w))) {
+            storeData.ownerWhatsApp = String(decoded.w);
+          }
+          if (Array.isArray(decoded.d)) {
+            decoded.d.forEach(([dId, offset]) => {
+              const dist = storeData.districts.find(item => item.id === dId);
+              if (dist && !isNaN(Number(offset))) {
+                dist.offset = Number(offset);
+              }
+            });
+          }
+          if (Array.isArray(decoded.p)) {
+            decoded.p.forEach(([pId, price, pieces]) => {
+              const prod = storeData.products.find(item => item.id === pId);
+              if (prod) {
+                if (!isNaN(Number(price)) && Number(price) > 0) {
+                  prod.basePrice = Number(price);
+                }
+                if (!isNaN(Number(pieces)) && Number(pieces) >= 0) {
+                  prod.availablePieces = Math.floor(Number(pieces));
+                }
+              }
+            });
+          }
+        }
+      }
+    }
+
+    /**
+     * Build full shareable URL containing #data=...
+     */
+    function buildShareableUrl() {
+      const baseUrl = window.location.href.split('#')[0].split('?')[0];
+      const encoded = encodeStateToHash(storeData);
+      return `${baseUrl}#data=${encoded}`;
+    }
+
+    /**
+     * Convert English digits to Bengali digits
+     */
+    function toBengaliDigits(value) {
+      const bn = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+      return String(value).replace(/\d/g, d => bn[d]);
+    }
+
+    /**
+     * Calculate price adjusted for selected location
+     */
+    function getCalculatedPrice(product) {
+      const district = storeData.districts.find(d => d.id === selectedDistrictId) || storeData.districts[0];
+      let adjustment = district.offset;
+      if (product.basePrice < 50) {
+        adjustment = Math.round(district.offset * 0.1);
+      } else if (product.basePrice < 150) {
+        adjustment = Math.round(district.offset * 0.25);
+      }
+      return Math.max(1, product.basePrice + adjustment);
+    }
+
+    /**
+     * Build direct WhatsApp order URL with product details, location, price & available pieces
+     */
+    function buildProductWhatsAppLink(product, finalPrice, districtName) {
+      const phone = storeData.ownerWhatsApp.replace(/[^0-9]/g, '');
+      const text =
+        `আসসালামু আলাইকুম, আমি 'পোল্ট্রি হাট' থেকে অর্ডার করতে চাই:\n` +
+        `• পণ্য: ${product.name}\n` +
+        `• এলাকা/জেলা: ${districtName}\n` +
+        `• বর্তমান দাম: ৳${toBengaliDigits(finalPrice)} (${product.unit})\n` +
+        `• স্টকে আছে: ${toBengaliDigits(product.availablePieces)} পিস\n\n` +
+        `আমি সরাসরি কথা বলে অর্ডার কনফার্ম করতে চাচ্ছি।`;
+      return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+    }
+
+    /**
+     * Render District Dropdown & Direct Chat Links
+     */
+    function renderDistrictControls() {
+      const selectEl = document.getElementById('district-select');
+      selectEl.innerHTML = storeData.districts
+        .map(d => `<option value="${d.id}" ${d.id === selectedDistrictId ? 'selected' : ''}>${d.name}</option>`)
+        .join('');
+
+      const activeDistrict = storeData.districts.find(d => d.id === selectedDistrictId) || storeData.districts[0];
+      const districtName = activeDistrict ? activeDistrict.name : 'ঢাকা';
+      document.getElementById('hero-district-name').textContent = districtName;
+
+      const phone = storeData.ownerWhatsApp.replace(/[^0-9]/g, '');
+      const generalMsg = encodeURIComponent(`আসসালামু আলাইকুম, আমি পোল্ট্রি হাট (${districtName} এলাকা) থেকে মুরগি/হাঁস/ডিমের ব্যাপারে সরাসরি কথা বলতে চাচ্ছি।`);
+      const waDirectUrl = `https://wa.me/${phone}?text=${generalMsg}`;
+
+      document.getElementById('hero-direct-wa').href = waDirectUrl;
+      document.getElementById('floating-wa-btn').href = waDirectUrl;
+    }
+
+    /**
+     * Render Product Cards
+     */
+    function renderProducts() {
+      const grid = document.getElementById('product-grid');
+      const filtered = selectedCategory === 'all'
+        ? storeData.products
+        : storeData.products.filter(p => p.category === selectedCategory);
+
+      const activeDistrict = storeData.districts.find(d => d.id === selectedDistrictId) || storeData.districts[0];
+      const districtName = activeDistrict ? activeDistrict.name : 'ঢাকা';
+
+      const catIcons = {
+        chicken: '🐓',
+        table_egg: '🥚',
+        hatching_egg: '🐣',
+        duck: '🦆'
+      };
+
+      grid.innerHTML = filtered.map(product => {
+        const finalPrice = getCalculatedPrice(product);
+        const pieces = Number(product.availablePieces) || 0;
+        const isAvailable = pieces > 0;
+        const waHref = buildProductWhatsAppLink(product, finalPrice, districtName);
+
+        return `
+          <article class="bg-white rounded-2xl border border-stone-200 shadow-xs hover:shadow-md transition flex flex-col justify-between overflow-hidden ${!isAvailable ? 'opacity-80' : ''}">
+            <div class="p-4 sm:p-5">
+              <!-- Category & Badge -->
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="inline-flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-lg bg-stone-100 text-slate-700">
+                  <span>${catIcons[product.category] || '📦'}</span>
+                  <span>${product.categoryLabel}</span>
+                </span>
+                ${
+                  product.badge
+                    ? `<span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-amberfarm-100 text-amberfarm-700">${product.badge}</span>`
+                    : ''
+                }
+              </div>
+
+              <!-- Title & Description -->
+              <h3 class="text-lg font-bold text-slate-900 leading-snug">${product.name}</h3>
+              <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">${product.description}</p>
+
+              <!-- Available Pieces Pill -->
+              <div class="mt-3.5">
+                ${
+                  isAvailable
+                    ? `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                        <i class="fa-solid fa-box-open text-emerald-600"></i>
+                        <span>বিক্রির জন্য আছে: ${toBengaliDigits(pieces)} পিস</span>
+                      </div>`
+                    : `<div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold">
+                        <i class="fa-solid fa-circle-xmark text-rose-600"></i>
+                        <span>স্টক শেষ</span>
+                      </div>`
+                }
+              </div>
+            </div>
+
+            <!-- Price & Direct WhatsApp Action -->
+            <div class="px-4 sm:px-5 py-3.5 bg-stone-50 border-t border-stone-100 flex flex-col gap-3">
+              <div class="flex items-baseline justify-between">
+                <span class="text-xs font-semibold text-slate-500">বর্তমান দর (${districtName}):</span>
+                <div class="flex items-baseline gap-1">
+                  <span class="text-2xl font-bold text-brand-800">৳${toBengaliDigits(finalPrice)}</span>
+                  <span class="text-xs font-semibold text-slate-600">${product.unit}</span>
+                </div>
+              </div>
+
+              ${
+                isAvailable
+                  ? `<a
+                      href="${waHref}"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition active:scale-95 shadow-xs bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <i class="fa-brands fa-whatsapp text-lg"></i>
+                      <span>WhatsApp-এ কথা বলে অর্ডার করুন</span>
+                    </a>`
+                  : `<button
+                      type="button"
+                      disabled
+                      class="w-full py-3 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 bg-stone-200 text-slate-400 cursor-not-allowed"
+                    >
+                      <i class="fa-brands fa-whatsapp text-lg"></i>
+                      <span>বর্তমানে স্টক শেষ</span>
+                    </button>`
+              }
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    /**
+     * ============================================================================
+     * SHARE MODAL ACTIONS
+     * ============================================================================
+     */
+
+    function copyTextToClipboard(text) {
+      const temp = document.createElement('input');
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      temp.setSelectionRange(0, 99999);
+      let ok = false;
+      try {
+        ok = document.execCommand('copy');
+      } catch (e) {
+        ok = false;
+      }
+      document.body.removeChild(temp);
+      return ok;
+    }
+
+    window.openShareModal = function () {
+      document.getElementById('share-url-input').value = buildShareableUrl();
+      document.getElementById('share-modal').classList.remove('hidden');
+    };
+
+    window.copyCurrentShareUrl = function () {
+      const url = buildShareableUrl();
+      if (copyTextToClipboard(url)) {
+        showToast('শেয়ার লিংক কপি হয়েছে! এখন Facebook বা WhatsApp-এ দিন।', 'success');
+      } else {
+        showToast('লিংক কপি করা যায়নি, বক্স থেকে কপি করুন।', 'error');
+      }
+    };
+
+    window.shareToWhatsApp = function () {
+      const url = buildShareableUrl();
+      const msg = `🐓 পোল্ট্রি হাট — আজকের দেশি/ফাউমি মুরগি, হাঁস, খাওয়ার ডিম ও বীজ ডিমের দাম এবং কত পিস স্টকে আছে দেখুন ও সরাসরি অর্ডার করুন:\n${url}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+    };
+
+    window.shareToFacebook = function () {
+      const url = buildShareableUrl();
+      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+    };
+
+    /**
+     * ============================================================================
+     * OWNER ADMIN PANEL (PIN: 4973)
+     * ============================================================================
+     */
+
+    window.openOwnerAuthModal = function () {
+      document.getElementById('owner-pin-input').value = '';
+      document.getElementById('owner-auth-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('owner-pin-input').focus(), 100);
+    };
+
+    window.verifyOwnerPin = function (event) {
+      event.preventDefault();
+      const pin = document.getElementById('owner-pin-input').value.trim();
+      if (pin === storeData.ownerPin) {
+        closeModal('owner-auth-modal');
+        openOwnerAdminPanel();
+      } else {
+        showToast('ভুল পিন নম্বর! আবার চেষ্টা করুন।', 'error');
+      }
+    };
+
+    function openOwnerAdminPanel() {
+      document.getElementById('admin-wa-number').value = storeData.ownerWhatsApp;
+      document.getElementById('admin-new-pin').value = storeData.ownerPin;
+
+      // Render District Offsets
+      document.getElementById('admin-district-list').innerHTML = storeData.districts
+        .map(
+          d => `
+        <div class="bg-white p-2.5 rounded-xl border border-stone-200">
+          <label class="block text-xs font-bold text-slate-700 mb-1">${d.name}</label>
+          <div class="flex items-center">
+            <span class="text-xs text-slate-400 mr-1">৳</span>
+            <input
+              type="number"
+              data-district-id="${d.id}"
+              value="${d.offset}"
+              class="admin-district-offset w-full text-sm font-bold text-slate-900 bg-stone-50 px-2 py-1 rounded-lg border border-stone-200 focus:border-brand-600 outline-none"
+            />
+          </div>
+        </div>
+      `
+        )
+        .join('');
+
+      // Render Products with Base Price & Available Pieces Inputs
+      document.getElementById('admin-product-list').innerHTML = storeData.products
+        .map(
+          p => `
+        <div class="bg-white p-3.5 rounded-xl border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex-1">
+            <span class="text-[11px] font-bold text-brand-800 bg-brand-50 px-2 py-0.5 rounded-md">${p.categoryLabel}</span>
+            <h5 class="font-bold text-sm text-slate-900 mt-1">${p.name}</h5>
+            <span class="text-[11px] text-slate-400">একক: ${p.unit}</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2.5 sm:flex sm:items-center">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 mb-0.5">মূল দাম (৳)</label>
+              <input
+                type="number"
+                min="1"
+                data-prod-id="${p.id}"
+                value="${p.basePrice}"
+                class="admin-prod-price w-full sm:w-24 px-2.5 py-1.5 rounded-lg border border-stone-300 text-sm font-bold text-slate-900 focus:border-brand-600 outline-none"
+              />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-emerald-700 mb-0.5">কত পিস বিক্রির জন্য আছে</label>
+              <input
+                type="number"
+                min="0"
+                data-prod-pieces-id="${p.id}"
+                value="${p.availablePieces}"
+                class="admin-prod-pieces w-full sm:w-28 px-2.5 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50/40 text-sm font-bold text-emerald-900 focus:border-emerald-600 outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      `
+        )
+        .join('');
+
+      document.getElementById('owner-admin-modal').classList.remove('hidden');
+    }
+
+    window.saveAndCopyShareLink = function () {
+      const newWa = document.getElementById('admin-wa-number').value.trim();
+      const newPin = document.getElementById('admin-new-pin').value.trim();
+
+      if (!newWa || newWa.length < 8) {
+        showToast('সঠিক WhatsApp নম্বর দিন (যেমন: 966537077686)।', 'error');
+        return;
+      }
+      if (!newPin || newPin.length < 4) {
+        showToast('কমপক্ষে ৪ সংখ্যার পিন দিন।', 'error');
+        return;
+      }
+
+      storeData.ownerWhatsApp = newWa;
+      storeData.ownerPin = newPin;
+
+      document.querySelectorAll('.admin-district-offset').forEach(input => {
+        const dId = input.getAttribute('data-district-id');
+        const dist = storeData.districts.find(d => d.id === dId);
+        if (dist) {
+          dist.offset = parseInt(input.value, 10) || 0;
+        }
+      });
+
+      document.querySelectorAll('.admin-prod-price').forEach(input => {
+        const pId = input.getAttribute('data-prod-id');
+        const prod = storeData.products.find(p => p.id === pId);
+        if (prod) {
+          prod.basePrice = Math.max(1, parseInt(input.value, 10) || prod.basePrice);
+        }
+      });
+
+      document.querySelectorAll('.admin-prod-pieces').forEach(input => {
+        const pId = input.getAttribute('data-prod-pieces-id');
+        const prod = storeData.products.find(p => p.id === pId);
+        if (prod) {
+          const val = parseInt(input.value, 10);
+          prod.availablePieces = isNaN(val) || val < 0 ? 0 : val;
+        }
+      });
+
+      // Save to localStorage
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(storeData));
+      } catch (e) {}
+
+      // Update current browser hash & copy shareable URL
+      const shareUrl = buildShareableUrl();
+      try {
+        window.history.replaceState({}, '', shareUrl);
+      } catch (e) {}
+
+      renderDistrictControls();
+      renderProducts();
+      closeModal('owner-admin-modal');
+
+      if (copyTextToClipboard(shareUrl)) {
+        showToast('সেভ হয়েছে ও শেয়ার লিংক কপি হয়েছে! এখন Facebook বা WhatsApp-এ পেস্ট করুন।', 'success');
+      } else {
+        showToast('দাম ও পিসের সংখ্যা সেভ হয়েছে!', 'success');
+      }
+    };
+
+    window.resetToDefaults = function () {
+      storeData = JSON.parse(JSON.stringify(DEFAULT_STORE_DATA));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(storeData));
+        window.history.replaceState({}, '', buildShareableUrl());
+      } catch (e) {}
+      openOwnerAdminPanel();
+      renderDistrictControls();
+      renderProducts();
+      showToast('ডিফল্ট দাম ও পিসের সংখ্যায় রিসেট করা হয়েছে।', 'info');
+    };
+
+    /**
+     * ============================================================================
+     * UI HELPERS
+     * ============================================================================
+     */
+
+    window.closeModal = function (id) {
+      document.getElementById(id).classList.add('hidden');
+    };
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const styles = {
+        success: 'bg-emerald-700 text-white',
+        error: 'bg-rose-600 text-white',
+        info: 'bg-slate-800 text-white'
+      };
+      toast.className = `${styles[type] || styles.info} px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-semibold flex items-center justify-between gap-3 pointer-events-auto transition-all duration-300`;
+      toast.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()" class="text-white/80 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        if (toast.parentElement) toast.remove();
+      }, 4000);
+    }
+
+    // Boot Application
+    window.addEventListener('DOMContentLoaded', () => {
+      initializeStoreState();
+      renderDistrictControls();
+      renderProducts();
+
+      document.getElementById('district-select').addEventListener('change', e => {
+        selectedDistrictId = e.target.value;
+        renderDistrictControls();
+        renderProducts();
+        const dist = storeData.districts.find(d => d.id === selectedDistrictId);
+        showToast(`${dist.name} জেলার বাজারদর আপডেট করা হয়েছে।`, 'info');
+      });
+
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.cat-btn').forEach(b => {
+            b.classList.remove('bg-brand-700', 'text-white', 'shadow-xs');
+            b.classList.add('bg-white', 'text-slate-700', 'border', 'border-stone-200');
+          });
+          btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-stone-200');
+          btn.classList.add('bg-brand-700', 'text-white', 'shadow-xs');
+
+          selectedCategory = btn.getAttribute('data-cat');
+          renderProducts();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+```
